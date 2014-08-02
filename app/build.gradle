@@ -18,3 +18,7 @@ android {
         }
     }
 }
+
+dependencies {
+    compile 'com.squareup.retrofit:retrofit:1.6.1'
+}
