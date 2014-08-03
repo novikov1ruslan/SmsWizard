@@ -26,8 +26,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Path;
 
 
 /**
@@ -47,18 +54,21 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private View mProgressView;
     private View mLoginFormView;
     private SmsService service;
+    private SmsService service2;
 
     public interface SmsService {
-        //        @GET("/users/{user}/repos")
-//        List<Repo> listRepos(@Path("user") String user);
-        @POST("/api/token_get")
-        String getToken(String email, String password);
+        @FormUrlEncoded
+        @POST("/token_get")
+        String getToken(@Field("email") String email, @Field("password") String password);
 
-        @POST("/api/get_outgoing_messages")
-        String getOutgoingMessages(String token, String email);
+        @POST("/get_outgoing_messages")
+        String getOutgoingMessages(@Field("token")String token, @Field("email")String email);
 
-        @POST("/api/set_incoming_message")
-        String setIncomingMessage(String token, String messageId);
+        @POST("/set_incoming_message")
+        String setIncomingMessage(@Field("token")String token, @Field("message_id")String messageId);
+
+        @GET("/users/{user}/repos")
+        String getRepos(@Path("user") String user);
     }
 
     @Override
@@ -92,10 +102,16 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mProgressView.setVisibility(View.INVISIBLE);
 
-        RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000").build();
+        service = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsService.class);
+        service2 = new RestAdapter.Builder().setEndpoint("https://api.github.com").build().create(SmsService.class);
+    }
 
-        service = restAdapter.create(SmsService.class);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Crouton.cancelAllCroutons();
     }
 
     private void populateAutoComplete() {
@@ -145,7 +161,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
@@ -247,8 +262,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String token = service.getToken(mEmail, mPassword);
-            Log.d(TAG, "token=" + token);
+            String token = null;
+            try {
+//                token = service.getToken(mEmail, mPassword);
+                Object o = service2.getRepos("novikov1ruslan");
+                Log.d(TAG, "token=" + o);
+            }
+            catch (RetrofitError error) {
+                Log.d(TAG, error.getMessage());
+            }
 
             return token != null;
         }
@@ -261,8 +283,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             if (success) {
                 finish();
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+//                mPasswordView.setError(getString(R.string.error_incorrect_password));
+//                mPasswordView.requestFocus();
+                Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
             }
         }
 

@@ -19,6 +19,21 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile 'com.squareup.retrofit:retrofit:1.6.1'
+
+    compile('de.keyboardsurfer.android.widget:crouton:1.8.4') {
+        // exclusion is not neccessary, but generally a good idea.
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
 }
