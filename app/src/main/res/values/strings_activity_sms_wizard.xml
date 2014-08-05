@@ -1,0 +1,4 @@
+<resources>
+    <string name="application_status">Application is enabled</string>
+    <string name="logout">Logout</string>
+</resources>

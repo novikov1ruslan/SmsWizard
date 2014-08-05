@@ -1,4 +1,3 @@
 <resources>
     <string name="app_name">SmsWizard</string>
-    <string name="login_failed">Login failed</string>
 </resources>

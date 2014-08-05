@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -22,6 +23,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.external.smswizard.model.ApplicationModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +57,18 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private View mProgressView;
     private View mLoginFormView;
     private SmsService service;
-    private SmsService service2;
+    private ApplicationModel applicationModel;
+    //    private SmsService service2;
+
+    public class Token {
+        public String token;
+    }
+
 
     public interface SmsService {
         @FormUrlEncoded
-        @POST("/token_get")
-        String getToken(@Field("email") String email, @Field("password") String password);
+        @POST("/get_token")
+        Token getToken(@Field("email") String email, @Field("password") String password);
 
         @POST("/get_outgoing_messages")
         String getOutgoingMessages(@Field("token")String token, @Field("email")String email);
@@ -74,9 +83,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applicationModel = new ApplicationModel(getApplicationContext());
+        String token = applicationModel.getToken();
+        if (!TextUtils.isEmpty(token)) {
+            startSmsWizard();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
-        // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -105,7 +120,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mProgressView.setVisibility(View.INVISIBLE);
 
         service = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsService.class);
-        service2 = new RestAdapter.Builder().setEndpoint("https://api.github.com").build().create(SmsService.class);
+//        service2 = new RestAdapter.Builder().setEndpoint("https://api.github.com").build().create(SmsService.class);
     }
 
     @Override
@@ -250,7 +265,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Token> {
 
         private final String mEmail;
         private final String mPassword;
@@ -261,27 +276,28 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            String token = null;
+        protected Token doInBackground(Void... params) {
+            Token token = null;
             try {
-//                token = service.getToken(mEmail, mPassword);
-                Object o = service2.getRepos("novikov1ruslan");
-                Log.d(TAG, "token=" + o);
+                token = service.getToken(mEmail, mPassword);
+//                Object o = service2.getRepos("novikov1ruslan");
+                Log.d(TAG, "token=" + token);
             }
             catch (RetrofitError error) {
                 Log.d(TAG, error.getMessage());
             }
 
-            return token != null;
+            return token;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Token token) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                finish();
+            if (token != null) {
+                applicationModel.setToken(token.token);
+                startSmsWizard();
             } else {
 //                mPasswordView.setError(getString(R.string.error_incorrect_password));
 //                mPasswordView.requestFocus();
@@ -294,6 +310,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    private void startSmsWizard() {
+        startActivity(new Intent(getBaseContext(), RegisteredActivity.class));
+        finish();
     }
 }
 
