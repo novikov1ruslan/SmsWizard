@@ -39,31 +39,21 @@ import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
 
-
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     private static final String TAG = "LoginActivity";
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
     private UserLoginTask mAuthTask;
 
-    // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private SmsService service;
     private ApplicationModel applicationModel;
-    //    private SmsService service2;
 
     public class Token {
         public String token;
     }
-
 
     public interface SmsService {
         @FormUrlEncoded
@@ -71,10 +61,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         Token getToken(@Field("email") String email, @Field("password") String password);
 
         @POST("/get_outgoing_messages")
-        String getOutgoingMessages(@Field("token")String token, @Field("email")String email);
+        String getOutgoingMessages(@Field("token") String token, @Field("email") String email);
 
         @POST("/set_incoming_message")
-        String setIncomingMessage(@Field("token")String token, @Field("message_id")String messageId);
+        String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
 
         @GET("/users/{user}/repos")
         String getRepos(@Path("user") String user);
@@ -133,11 +123,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         getLoaderManager().initLoader(0, null, this);
     }
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     public void attemptLogin() {
         if (mAuthTask != null) {
             return;
@@ -282,8 +267,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 token = service.getToken(mEmail, mPassword);
 //                Object o = service2.getRepos("novikov1ruslan");
                 Log.d(TAG, "token=" + token);
-            }
-            catch (RetrofitError error) {
+            } catch (RetrofitError error) {
                 Log.d(TAG, error.getMessage());
             }
 

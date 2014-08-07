@@ -41,4 +41,8 @@ public class ApplicationModel {
     public String getToken() {
         return sharedPreferences.getString(TOKEN, null);
     }
+
+    public boolean hasToken() {
+        return !TextUtils.isEmpty(getToken());
+    }
 }
