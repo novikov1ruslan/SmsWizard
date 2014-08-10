@@ -1,7 +1,5 @@
 package com.external.smswizard;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
@@ -9,108 +7,60 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.external.smswizard.model.ApplicationModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Path;
 
-public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, LoginLayout.LayoutListener {
 
     private static final String TAG = "LoginActivity";
-    private UserLoginTask mAuthTask;
 
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
-    private SmsService service;
     private ApplicationModel applicationModel;
-
-    public class Token {
-        public String token;
-    }
-
-    public interface SmsService {
-        @FormUrlEncoded
-        @POST("/get_token")
-        Token getToken(@Field("email") String email, @Field("password") String password);
-
-        @POST("/get_outgoing_messages")
-        String getOutgoingMessages(@Field("token") String token, @Field("email") String email);
-
-        @POST("/set_incoming_message")
-        String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
-
-        @GET("/users/{user}/repos")
-        String getRepos(@Path("user") String user);
-    }
+    private LoginLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         applicationModel = new ApplicationModel(getApplicationContext());
-        String token = applicationModel.getToken();
-        if (!TextUtils.isEmpty(token)) {
+        if (applicationModel.hasToken()) {
             startSmsWizard();
+            finish();
             return;
         }
 
-        setContentView(R.layout.activity_login);
-
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        layout = (LoginLayout) getLayoutInflater().inflate(R.layout.activity_login, null);
+        setContentView(layout);
         populateAutoComplete();
+    }
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+    private void startSmsWizard() {
+        startActivity(new Intent(getBaseContext(), HomeActivity.class));
+    }
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+    private void populateAutoComplete() {
+        getLoaderManager().initLoader(0, null, this);
+    }
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        mProgressView.setVisibility(View.INVISIBLE);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
 
-        service = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsService.class);
-//        service2 = new RestAdapter.Builder().setEndpoint("https://api.github.com").build().create(SmsService.class);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -119,77 +69,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         Crouton.cancelAllCroutons();
     }
 
-    private void populateAutoComplete() {
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    public void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
+    public void onEventMainThread(RestService.Token token) {
+        if (token.token == null) {
+            Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
         }
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        View focusView = null;
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        else {
+            startSmsWizard();
         }
-
-        if (focusView == null) {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-        } else {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        }
-    }
-
-    private boolean isEmailValid(String email) {
-        return email.contains("@");
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    public void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
-
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        mProgressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
     }
 
     @Override
@@ -222,84 +108,54 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         addEmailsToAutoComplete(emails);
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<String>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        layout.setEmailAdapter(adapter);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Token> {
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
-        private final String mEmail;
-        private final String mPassword;
+    }
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
+    @Override
+    public void onLogin() {
+        String email = layout.getEmail();
 
-        @Override
-        protected Token doInBackground(Void... params) {
-            Token token = null;
-            try {
-                token = service.getToken(mEmail, mPassword);
-//                Object o = service2.getRepos("novikov1ruslan");
-                Log.d(TAG, "token=" + token);
-            } catch (RetrofitError error) {
-                Log.d(TAG, error.getMessage());
-            }
-
-            return token;
-        }
-
-        @Override
-        protected void onPostExecute(final Token token) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (token != null) {
-                applicationModel.setToken(token.token);
-                startSmsWizard();
-            } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-                Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
+        if (TextUtils.isEmpty(email)) {
+            layout.setEmailError(getString(R.string.error_field_required));
+        } else if (!isEmailValid(email)) {
+            layout.setEmailError(getString(R.string.error_invalid_email));
+        } else {
+            layout.showProgress();
+            String password = layout.getPassword();
+            startLogin(email, password);
         }
     }
 
-    private void startSmsWizard() {
-        startActivity(new Intent(getBaseContext(), RegisteredActivity.class));
-        finish();
+    private boolean isEmailValid(String email) {
+        return email.contains("@");
     }
+
+    private void startLogin(String email, String password) {
+        Intent intent = new Intent(this, RestService.class);
+        intent.putExtra(RestService.EXTRA_EMAIL, email);
+        intent.putExtra(RestService.EXTRA_PASSWORD, password);
+        startService(intent);
+    }
+
+    private interface ProfileQuery {
+        String[] PROJECTION = {
+                ContactsContract.CommonDataKinds.Email.ADDRESS
+        };
+
+        int ADDRESS = 0;
+    }
+
 }
 
 

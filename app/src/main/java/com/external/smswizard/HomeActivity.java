@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import com.external.smswizard.model.ApplicationModel;
 
-public class RegisteredActivity extends Activity {
+public class HomeActivity extends Activity {
     private ApplicationModel model;
 
     @Override

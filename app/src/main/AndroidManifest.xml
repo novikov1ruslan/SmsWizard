@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RegisteredActivity"
+            android:name=".HomeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" />
 
@@ -37,6 +37,12 @@
             android:enabled="true"
             android:exported="true" >
         </receiver>
+
+        <service
+            android:name=".RestService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
     </application>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->

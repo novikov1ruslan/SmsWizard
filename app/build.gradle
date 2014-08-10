@@ -35,6 +35,7 @@ dependencies {
         // exclusion is not neccessary, but generally a good idea.
 //        exclude group: 'com.google.android', module: 'support-v4'
     }
+    compile 'de.greenrobot:eventbus:2.2.1'
 
     compile "com.android.support:support-v4:19.1.+"
 }
