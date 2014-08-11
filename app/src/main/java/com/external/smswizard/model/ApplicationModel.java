@@ -27,14 +27,17 @@ public class ApplicationModel {
 
     public void setApplicationOn() {
         editor.putBoolean(APPLICATION_ON, true).apply();
+        Ln.d("app enabled");
     }
 
     public void setApplicationOff() {
         editor.putBoolean(APPLICATION_ON, false).apply();
+        Ln.d("app disabled");
     }
 
     public void forgetToken() {
         editor.putString(TOKEN, ILLEGAL_TOKEN).apply();
+        Ln.d("token forgotten");
     }
 
     public void setToken(String token) {

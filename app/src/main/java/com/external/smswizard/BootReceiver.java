@@ -8,12 +8,16 @@ import android.content.Intent;
 
 import com.external.smswizard.model.ApplicationModel;
 
+import roboguice.util.Ln;
+
 public class BootReceiver extends BroadcastReceiver {
     private static final long DELAY = 10000;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (new ApplicationModel(context.getApplicationContext()).hasToken()) {
+        boolean hasToken = new ApplicationModel(context.getApplicationContext()).hasToken();
+        Ln.d("hasToken=" + hasToken);
+        if (hasToken) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent broadcast = new Intent(context, AlarmReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);

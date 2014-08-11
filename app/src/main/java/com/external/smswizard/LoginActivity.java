@@ -29,7 +29,6 @@ import roboguice.util.Ln;
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, LoginLayout.LayoutListener {
     private ApplicationModel applicationModel;
     private LoginLayout layout;
-    private long DELAY = 10000; // TODO: increase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,24 +82,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
      * EventBus takes care of calling the method in the main thread without any further code required.
      */
     public void onEventMainThread(RestService.Token token) {
+        layout.hideProgress();
         Ln.d("token=%s", token);
         if (token.token == null) {
-            layout.hideProgress();
             Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
         } else {
-            schedulePolling(this);
+            applicationModel.setApplicationOn();
+            AlarmReceiver.schedulePolling(this);
             startSmsWizard();
         }
-    }
-
-    private void schedulePolling(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent broadcast = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
-//        am.cancel(pendingIntent); // will cancel all alarms whose intent matches this one
-//            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, AlarmManager.INTERVAL_HOUR, pendingIntent);
-        Ln.d("scheduling polling event every 10 seconds");
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, DELAY, pendingIntent);
     }
 
     @Override
@@ -159,8 +149,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
             layout.setEmailError(getString(R.string.error_invalid_email));
         } else {
             layout.showProgress();
-            String password = layout.getPassword();
-            startLogin(email, password);
+            RestService.login(this, email, layout.getPassword());
         }
     }
 

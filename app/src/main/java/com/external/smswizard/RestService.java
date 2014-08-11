@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telephony.SmsManager;
 
 import com.external.smswizard.model.ApplicationModel;
 
@@ -91,8 +92,10 @@ public class RestService extends IntentService {
             List<Message> messages = service.getOutgoingMessages(token, email);
             Ln.d("messages=%s", messages);
             ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
+            SmsManager smsManager = SmsManager.getDefault();
             for (Message message: messages) {
                 applicationModel.addMessage(message.id, message.phone);
+//                smsManager.sendTextMessage(message.phone, null, message.text, null, null);
             }
 
             EventBus.getDefault().post(token);
