@@ -38,4 +38,5 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.2.1'
 
     compile "com.android.support:support-v4:19.1.+"
+    compile 'com.j256.ormlite:ormlite-android:4.48'
 }

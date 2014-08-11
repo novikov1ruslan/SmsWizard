@@ -1,7 +1,10 @@
 package com.external.smswizard;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -13,6 +16,7 @@ import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 
 import com.external.smswizard.model.ApplicationModel;
+import com.external.smswizard.view.LoginLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,31 +24,34 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+import roboguice.util.Ln;
 
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, LoginLayout.LayoutListener {
-
-    private static final String TAG = "LoginActivity";
-
     private ApplicationModel applicationModel;
     private LoginLayout layout;
+    private long DELAY = 10000; // TODO: increase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         applicationModel = new ApplicationModel(getApplicationContext());
         if (applicationModel.hasToken()) {
+            Ln.d("token present, skipping login phase");
             startSmsWizard();
-            finish();
             return;
         }
 
-        layout = (LoginLayout) getLayoutInflater().inflate(R.layout.activity_login, null);
+        layout = (LoginLayout) getLayoutInflater().inflate(R.layout.login, null);
+        layout.setLayoutListener(this);
         setContentView(layout);
         populateAutoComplete();
+        Ln.d("UI created");
     }
 
     private void startSmsWizard() {
-        startActivity(new Intent(getBaseContext(), HomeActivity.class));
+        Ln.d("staring main app screen");
+        startActivity(new Intent(getBaseContext(), MainActivity.class));
+        finish();
     }
 
     private void populateAutoComplete() {
@@ -55,27 +62,45 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        Ln.d("UI is becoming visible, registered for event bus");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        Ln.d("UI is NOT visible, unregistered from event bus");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Crouton.cancelAllCroutons();
+        Ln.d("UI is destroyed, croutons cancelled");
     }
 
+    /**
+     * EventBus takes care of calling the method in the main thread without any further code required.
+     */
     public void onEventMainThread(RestService.Token token) {
+        Ln.d("token=%s", token);
         if (token.token == null) {
+            layout.hideProgress();
             Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
-        }
-        else {
+        } else {
+            schedulePolling(this);
             startSmsWizard();
         }
+    }
+
+    private void schedulePolling(Context context) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent broadcast = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
+//        am.cancel(pendingIntent); // will cancel all alarms whose intent matches this one
+//            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, AlarmManager.INTERVAL_HOUR, pendingIntent);
+        Ln.d("scheduling polling event every 10 seconds");
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, DELAY, pendingIntent);
     }
 
     @Override
@@ -105,6 +130,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
             cursor.moveToNext();
         }
 
+        Ln.d("finished loading email addresses");
+
         addEmailsToAutoComplete(emails);
     }
 
@@ -125,7 +152,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
     @Override
     public void onLogin() {
         String email = layout.getEmail();
-
+        Ln.d("login attempt for [%s]", email);
         if (TextUtils.isEmpty(email)) {
             layout.setEmailError(getString(R.string.error_field_required));
         } else if (!isEmailValid(email)) {
@@ -139,13 +166,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
 
     private boolean isEmailValid(String email) {
         return email.contains("@");
-    }
-
-    private void startLogin(String email, String password) {
-        Intent intent = new Intent(this, RestService.class);
-        intent.putExtra(RestService.EXTRA_EMAIL, email);
-        intent.putExtra(RestService.EXTRA_PASSWORD, password);
-        startService(intent);
     }
 
     private interface ProfileQuery {

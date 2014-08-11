@@ -1,4 +1,4 @@
-package com.external.smswizard;
+package com.external.smswizard.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -13,10 +13,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.external.smswizard.R;
+
 public class LoginLayout extends LinearLayout {
     private LayoutListener layoutListener;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private View mButtonView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -42,7 +45,8 @@ public class LoginLayout extends LinearLayout {
             }
         });
 
-        findViewById(R.id.email_sign_in_button).setOnClickListener(new OnClickListener() {
+        mButtonView = findViewById(R.id.sign_in_button);
+        mButtonView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (layoutListener != null) {
@@ -51,9 +55,11 @@ public class LoginLayout extends LinearLayout {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         mProgressView.setVisibility(View.GONE);
+
+        mLoginFormView = findViewById(R.id.login_form);
+//        hideProgress();
     }
 
     public void setLayoutListener(LayoutListener layoutListener) {

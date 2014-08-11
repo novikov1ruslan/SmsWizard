@@ -1,15 +1,19 @@
-package com.external.smswizard;
+package com.external.smswizard.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
-public class SmsWizardLayout extends LinearLayout {
-    private LayoutListener layoutListener;
+import com.external.smswizard.R;
 
-    public SmsWizardLayout(Context context, AttributeSet attrs) {
+public class MainLayout extends LinearLayout {
+    private LayoutListener layoutListener;
+    private CheckBox appOnCheckBox;
+
+    public MainLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -42,10 +46,28 @@ public class SmsWizardLayout extends LinearLayout {
             }
         });
 
+        appOnCheckBox = (CheckBox) findViewById(R.id.on_off);
+//        appOnCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (layoutListener != null) {
+//                    if (isChecked) {
+//                        layoutListener.onApplicationOn();
+//                    }
+//                    else {
+//                        layoutListener.onApplicationOff();
+//                    }
+//                }
+//            }
+//        });
     }
 
     public void setLayoutListener(LayoutListener layoutListener) {
         this.layoutListener = layoutListener;
+    }
+
+    public void setApplicationStatus(boolean applicationOn) {
+        appOnCheckBox.setChecked(applicationOn);
     }
 
     public interface LayoutListener {

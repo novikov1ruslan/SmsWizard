@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import roboguice.util.Ln;
+
 public class ApplicationModel {
     public static final String APPLICATION_ON = "APPLICATION_ON";
     private static final String TOKEN = "TOKEN";
@@ -35,6 +37,8 @@ public class ApplicationModel {
             throw new IllegalArgumentException();
         }
 
+        Ln.d(token);
+
         editor.putString(TOKEN, token).apply();
     }
 
@@ -44,5 +48,13 @@ public class ApplicationModel {
 
     public boolean hasToken() {
         return !TextUtils.isEmpty(getToken());
+    }
+
+    public boolean isApplicationOn() {
+        return sharedPreferences.getBoolean(APPLICATION_ON, false);
+    }
+
+    public void addMessage(String id, String phone) {
+
     }
 }

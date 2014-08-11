@@ -4,18 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.external.smswizard.view.MainLayout;
 import com.external.smswizard.model.ApplicationModel;
 
-public class HomeActivity extends Activity {
+public class MainActivity extends Activity {
     private ApplicationModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        model = new ApplicationModel(getApplicationContext());
-        SmsWizardLayout layout = (SmsWizardLayout) getLayoutInflater().inflate(R.layout.activiry_sms_wizard, null);
-        layout.setLayoutListener(new SmsWizardLayout.LayoutListener() {
+        MainLayout layout = (MainLayout) getLayoutInflater().inflate(R.layout.main, null);
+        layout.setLayoutListener(new MainLayout.LayoutListener() {
             @Override
             public void onApplicationOn() {
                 model.setApplicationOn();
@@ -33,6 +33,9 @@ public class HomeActivity extends Activity {
                 finish();
             }
         });
+
+        model = new ApplicationModel(getApplicationContext());
+        layout.setApplicationStatus(model.isApplicationOn());
         setContentView(layout);
     }
 }

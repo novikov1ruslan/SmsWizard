@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.external.smswizard.SmsWizardLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.external.smswizard.view.MainLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -20,4 +20,4 @@
         android:text="@string/logout" />
 
 
-</com.external.smswizard.SmsWizardLayout>
+</com.external.smswizard.view.MainLayout>
