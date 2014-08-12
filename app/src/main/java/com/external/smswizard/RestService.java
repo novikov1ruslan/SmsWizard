@@ -34,18 +34,18 @@ public class RestService extends IntentService {
     public static void login(Context context, String email, String password) {
         Ln.d("starting login for (%s, %s)", email, password);
         Intent intent = new Intent(context, RestService.class);
-        intent.setAction(ACTION_GET_TOKEN);
+        intent.setAction(RestService.ACTION_GET_TOKEN);
         intent.putExtra(RestService.EXTRA_EMAIL, email);
         intent.putExtra(RestService.EXTRA_PASSWORD, password);
         context.startService(intent);
     }
 
-    public static void getOutgoingMessages(Context context, String email, String password) {
-        Ln.d("starting login for (%s, %s)", email, password);
+    public static void getOutgoingMessages(Context context, String token, String email) {
+        Ln.d("token=%s, email=%s", token, email);
         Intent intent = new Intent(context, RestService.class);
-        intent.setAction(ACTION_GET_TOKEN);
+        intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
+        intent.putExtra(RestService.EXTRA_TOKEN, token);
         intent.putExtra(RestService.EXTRA_EMAIL, email);
-        intent.putExtra(RestService.EXTRA_PASSWORD, password);
         context.startService(intent);
     }
 
@@ -69,7 +69,7 @@ public class RestService extends IntentService {
         if (ACTION_GET_TOKEN.equals(action)) {
             String email = intent.getStringExtra(EXTRA_EMAIL);
             String password = intent.getStringExtra(EXTRA_PASSWORD);
-            getToken(email, password);
+            doGetToken(email, password);
         }
         else if (ACTION_GET_OUTGOING_MESSAGES.equals(action)) {
             String token = intent.getStringExtra(EXTRA_TOKEN);
@@ -105,7 +105,7 @@ public class RestService extends IntentService {
         }
     }
 
-    private void getToken(String email, String password) {
+    private void doGetToken(String email, String password) {
         Ln.d("email=%s, password=%s", email, password);
 
         try {

@@ -14,11 +14,32 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent service = new Intent(context, PollingService.class);
+//        RestService.getOutgoingMessages(context);
+//        Intent service = new Intent(context, PollingService.class);
+//
+//        // Start the service, keeping the device awake while it is launching.
+//        Ln.i("Starting service @ " + SystemClock.elapsedRealtime());
+//        startWakefulService(context, service);
 
-        // Start the service, keeping the device awake while it is launching.
+        String token = intent.getStringExtra(RestService.EXTRA_TOKEN);
+        String email = intent.getStringExtra(RestService.EXTRA_EMAIL);
+        Ln.d("token=%s, email=%s", token, email);
+
+        Intent service = new Intent(context, RestService.class);
+        intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
+        intent.putExtra(RestService.EXTRA_TOKEN, token);
+        intent.putExtra(RestService.EXTRA_EMAIL, email);
         Ln.i("Starting service @ " + SystemClock.elapsedRealtime());
         startWakefulService(context, service);
+    }
+
+    public static void getOutgoingMessages(Context context, String email, String password) {
+        Ln.d("starting login for (%s, %s)", email, password);
+        Intent intent = new Intent(context, RestService.class);
+        intent.setAction(RestService.ACTION_GET_TOKEN);
+        intent.putExtra(RestService.EXTRA_EMAIL, email);
+        intent.putExtra(RestService.EXTRA_PASSWORD, password);
+        context.startService(intent);
     }
 
     public static void schedulePolling(Context context) {
