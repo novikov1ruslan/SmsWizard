@@ -33,15 +33,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         startWakefulService(context, service);
     }
 
-    public static void getOutgoingMessages(Context context, String email, String password) {
-        Ln.d("starting login for (%s, %s)", email, password);
-        Intent intent = new Intent(context, RestService.class);
-        intent.setAction(RestService.ACTION_GET_TOKEN);
-        intent.putExtra(RestService.EXTRA_EMAIL, email);
-        intent.putExtra(RestService.EXTRA_PASSWORD, password);
-        context.startService(intent);
-    }
-
     public static void schedulePolling(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent broadcast = new Intent(context, AlarmReceiver.class);
