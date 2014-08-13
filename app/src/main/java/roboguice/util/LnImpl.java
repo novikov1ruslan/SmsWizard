@@ -209,7 +209,7 @@ public class LnImpl implements LnInterface {
 
     protected String processMessage(String msg) {
         if( getLoggingLevel() <= Log.DEBUG )
-            msg = String.format("%s %s", Thread.currentThread().getName(), msg);
+            msg = String.format("[%s] %s", Thread.currentThread().getName(), msg);
         return msg;
     }
 

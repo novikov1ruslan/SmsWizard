@@ -25,11 +25,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         String email = intent.getStringExtra(RestService.EXTRA_EMAIL);
         Ln.d("token=%s, email=%s", token, email);
 
-        Intent service = new Intent(context, RestService.class);
-        intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
-        intent.putExtra(RestService.EXTRA_TOKEN, token);
-        intent.putExtra(RestService.EXTRA_EMAIL, email);
-        Ln.i("Starting service @ " + SystemClock.elapsedRealtime());
+        Intent service = RestService.getOutgoingMessagesIntent(context, token, email);
+        Ln.d("Starting service @ " + SystemClock.elapsedRealtime());
         startWakefulService(context, service);
     }
 

@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.telephony.SmsManager;
 
 import com.external.smswizard.model.ApplicationModel;
@@ -27,6 +28,7 @@ public class RestService extends IntentService {
     public static final String EXTRA_PASSWORD = "com.external.smswizard.EXTRA_PASSWORD";
     public static final String EXTRA_TOKEN = "com.external.smswizard.EXTRA_TOKEN";
     public static final String EXTRA_MESSAGE_ID = "com.external.smswizard.EXTRA_MESSAGE_ID";
+    public static final String EXTRA_WAKEFUL = "com.external.smswizard.EXTRA_WAKEFUL";
 
 
     SmsService service = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsService.class);
@@ -40,19 +42,9 @@ public class RestService extends IntentService {
         context.startService(intent);
     }
 
-    public static void getOutgoingMessages(Context context, String token, String email) {
-        Ln.d("token=%s, email=%s", token, email);
-        Intent intent = new Intent(context, RestService.class);
-        intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
-        intent.putExtra(RestService.EXTRA_TOKEN, token);
-        intent.putExtra(RestService.EXTRA_EMAIL, email);
-        context.startService(intent);
-    }
-
     public RestService() {
         super("RestService");
     }
-
 
     public RestService(String name) {
         super(name);
@@ -80,6 +72,11 @@ public class RestService extends IntentService {
             String token = intent.getStringExtra(EXTRA_TOKEN);
             String messageId = intent.getStringExtra(EXTRA_MESSAGE_ID);
             doSetIncomingMessage(token, messageId);
+        }
+
+        if (intent.getBooleanExtra(EXTRA_WAKEFUL, false)) {
+            Ln.d("Completed service @ " + SystemClock.elapsedRealtime());
+            AlarmReceiver.completeWakefulIntent(intent);
         }
     }
 
@@ -120,6 +117,14 @@ public class RestService extends IntentService {
         }
     }
 
+    public static Intent getOutgoingMessagesIntent(Context context, String token, String email) {
+        Intent intent = new Intent(context, RestService.class);
+        intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
+        intent.putExtra(RestService.EXTRA_TOKEN, token);
+        intent.putExtra(RestService.EXTRA_EMAIL, email);
+        return intent;
+    }
+
     public class Token {
         public String token;
 
@@ -150,8 +155,5 @@ public class RestService extends IntentService {
 
         @POST("/set_incoming_message")
         String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
-
-//        @GET("/users/{user}/repos")
-//        String getRepos(@Path("user") String user);
     }
 }
