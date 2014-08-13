@@ -12,7 +12,12 @@ public class Message {
     public String number;
 
     @DatabaseField(canBeNull = true)
-    public String text;
+    public String text = "";
+
+    /**
+     * this constructor is needed for DAO
+     */
+    public Message() {}
 
     public Message(String id, String number) {
         this.id = id;

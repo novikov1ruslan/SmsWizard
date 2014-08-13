@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 
 import com.external.smswizard.model.ApplicationModel;
+import com.external.smswizard.model.Token;
 import com.external.smswizard.view.LoginLayout;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
     /**
      * EventBus takes care of calling the method in the main thread without any further code required.
      */
-    public void onEventMainThread(RestService.Token token) {
+    public void onEventMainThread(Token token) {
         layout.hideProgress();
         Ln.d("token=%s", token);
         if (token.token == null) {

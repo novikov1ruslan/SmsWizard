@@ -30,7 +30,7 @@ public class RestService extends IntentService {
     public static final String EXTRA_WAKEFUL = "com.external.smswizard.EXTRA_WAKEFUL";
 
 
-    SmsService service = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsService.class);
+    SmsService service = RestFactory.getService();
 
     public static void login(Context context, String email, String password) {
         Ln.d("starting login for (%s, %s)", email, password);
@@ -104,7 +104,12 @@ public class RestService extends IntentService {
     private void storeMessages(List<Message> messages) {
         ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
         for (Message message : messages) {
-            applicationModel.addMessage(message.id, message.number);
+            if (applicationModel.getMessageForId(message.id) == null) {
+                applicationModel.addMessage(message.id, message.number);
+            }
+            else {
+                Ln.d("message id = %s already present", message.id);
+            }
         }
     }
 

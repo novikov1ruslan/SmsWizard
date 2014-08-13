@@ -20,22 +20,22 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "smswizard.db";
     private static final int DATABASE_VERSION = 1;
 
-    private Dao<Message, Integer> simpleDao;
-    private RuntimeExceptionDao<Message, Integer> simpleRuntimeDao;
+    private Dao<Message, String> simpleDao;
+    private RuntimeExceptionDao<Message, String> simpleRuntimeDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
 
-    public Dao<Message, Integer> getDao() throws SQLException {
+    public Dao<Message, String> getDao() throws SQLException {
         if (simpleDao == null) {
             simpleDao = getDao(Message.class);
         }
         return simpleDao;
     }
 
-    public RuntimeExceptionDao<Message, Integer> getSimpleDataDao() {
+    public RuntimeExceptionDao<Message, String> getSimpleDataDao() {
         if (simpleRuntimeDao == null) {
             simpleRuntimeDao = getRuntimeExceptionDao(Message.class);
         }
@@ -45,20 +45,20 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     //method for list of person
     public List<Message> GetData() {
         DatabaseHelper helper = new DatabaseHelper(context);
-        RuntimeExceptionDao<Message, Integer> simpleDao = helper.getSimpleDataDao();
+        RuntimeExceptionDao<Message, String> simpleDao = helper.getSimpleDataDao();
         List<Message> list = simpleDao.queryForAll();
         return list;
     }
 
     //method for insert data
     public int addData(Message message) {
-        RuntimeExceptionDao<Message, Integer> dao = getSimpleDataDao();
+        RuntimeExceptionDao<Message, String> dao = getSimpleDataDao();
         return dao.create(message);
     }
 
     //method for delete all rows
     public void deleteAll() {
-        RuntimeExceptionDao<Message, Integer> dao = getSimpleDataDao();
+        RuntimeExceptionDao<Message, String> dao = getSimpleDataDao();
         List<Message> list = dao.queryForAll();
         dao.delete(list);
     }
