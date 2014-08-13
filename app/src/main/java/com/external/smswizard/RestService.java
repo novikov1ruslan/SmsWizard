@@ -8,15 +8,14 @@ import android.os.SystemClock;
 import android.telephony.SmsManager;
 
 import com.external.smswizard.model.ApplicationModel;
+import com.external.smswizard.model.Message;
+import com.external.smswizard.model.Token;
 
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.POST;
 import roboguice.util.Ln;
 
 public class RestService extends IntentService {
@@ -98,14 +97,14 @@ public class RestService extends IntentService {
         SmsManager smsManager = SmsManager.getDefault();
         for (Message message : messages) {
             Ln.d("sending SMS for: " + message);
-            smsManager.sendTextMessage(message.phone, null, message.text, null, null);
+            smsManager.sendTextMessage(message.number, null, message.text, null, null);
         }
     }
 
     private void storeMessages(List<Message> messages) {
         ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
         for (Message message : messages) {
-            applicationModel.addMessage(message.id, message.phone);
+            applicationModel.addMessage(message.id, message.number);
         }
     }
 
@@ -132,37 +131,4 @@ public class RestService extends IntentService {
         return intent;
     }
 
-    public class Token {
-        public String token;
-
-        @Override
-        public String toString() {
-            return "[token=" + token + "]";
-        }
-    }
-
-    public class Message {
-        public String id;
-        public String phone;
-        public String text;
-
-        @Override
-        public String toString() {
-            return "[id=" + id + "; phone=" + phone + "; text=" + text + "]";
-        }
-    }
-
-    public interface SmsService {
-        @FormUrlEncoded
-        @POST("/get_token")
-        Token getToken(@Field("email") String email, @Field("password") String password);
-
-        @FormUrlEncoded
-        @POST("/get_outgoing_messages")
-        List<Message> getOutgoingMessages(@Field("token") String token, @Field("email") String email);
-
-        @FormUrlEncoded
-        @POST("/set_incoming_message")
-        String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
-    }
 }

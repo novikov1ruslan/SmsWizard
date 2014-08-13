@@ -1,10 +1,7 @@
 package com.external.smswizard;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;

@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import roboguice.util.Ln;
 
 public class ApplicationModel {
@@ -80,25 +77,6 @@ public class ApplicationModel {
 
     public String getEmail() {
         return sharedPreferences.getString(EMAIL, null);
-    }
-
-    @DatabaseTable(tableName = "messages")
-    public class Message {
-        @DatabaseField(id = true)
-        private String id;
-
-        @DatabaseField(canBeNull = false)
-        private String number;
-
-        public Message(String id, String number) {
-            this.id = id;
-            this.number = number;
-        }
-
-        @Override
-        public String toString() {
-            return "[id=" + id + "; number=" + number + "]";
-        }
     }
 
 }
