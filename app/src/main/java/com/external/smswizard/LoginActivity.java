@@ -148,6 +148,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
         } else if (!isEmailValid(email)) {
             layout.setEmailError(getString(R.string.error_invalid_email));
         } else {
+            applicationModel.setEmail(email);
             layout.showProgress();
             RestService.login(this, email, layout.getPassword());
         }

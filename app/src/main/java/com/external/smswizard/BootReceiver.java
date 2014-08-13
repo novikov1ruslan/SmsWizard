@@ -18,11 +18,7 @@ public class BootReceiver extends BroadcastReceiver {
         boolean hasToken = new ApplicationModel(context.getApplicationContext()).hasToken();
         Ln.d("hasToken=" + hasToken);
         if (hasToken) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent broadcast = new Intent(context, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
-//            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, AlarmManager.INTERVAL_HOUR, pendingIntent);
-            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, DELAY, pendingIntent);
+            AlarmReceiver.schedulePolling(context);
         }
     }
 }

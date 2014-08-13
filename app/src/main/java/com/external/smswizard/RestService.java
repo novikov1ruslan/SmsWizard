@@ -62,13 +62,11 @@ public class RestService extends IntentService {
             String email = intent.getStringExtra(EXTRA_EMAIL);
             String password = intent.getStringExtra(EXTRA_PASSWORD);
             doGetToken(email, password);
-        }
-        else if (ACTION_GET_OUTGOING_MESSAGES.equals(action)) {
+        } else if (ACTION_GET_OUTGOING_MESSAGES.equals(action)) {
             String token = intent.getStringExtra(EXTRA_TOKEN);
             String email = intent.getStringExtra(EXTRA_EMAIL);
             doGetOutgoingMessages(token, email);
-        }
-        else if (ACTION_SET_INCOMING_MESSAGE.equals(action)) {
+        } else if (ACTION_SET_INCOMING_MESSAGE.equals(action)) {
             String token = intent.getStringExtra(EXTRA_TOKEN);
             String messageId = intent.getStringExtra(EXTRA_MESSAGE_ID);
             doSetIncomingMessage(token, messageId);
@@ -88,17 +86,26 @@ public class RestService extends IntentService {
         try {
             List<Message> messages = service.getOutgoingMessages(token, email);
             Ln.d("messages=%s", messages);
-            ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
-            SmsManager smsManager = SmsManager.getDefault();
-            for (Message message: messages) {
-                applicationModel.addMessage(message.id, message.phone);
-//                smsManager.sendTextMessage(message.phone, null, message.text, null, null);
-            }
-
-            EventBus.getDefault().post(token);
+            storeMessages(messages);
+            // TODO: uncomment for production
+//            sendSmsFor(messages);
         } catch (RetrofitError error) {
-            Ln.d(error.getMessage());
-            EventBus.getDefault().post(new Token());
+            Ln.w(error.getMessage());
+        }
+    }
+
+    private void sendSmsFor(List<Message> messages) {
+        SmsManager smsManager = SmsManager.getDefault();
+        for (Message message : messages) {
+            Ln.d("sending SMS for: " + message);
+            smsManager.sendTextMessage(message.phone, null, message.text, null, null);
+        }
+    }
+
+    private void storeMessages(List<Message> messages) {
+        ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
+        for (Message message : messages) {
+            applicationModel.addMessage(message.id, message.phone);
         }
     }
 
@@ -112,8 +119,8 @@ public class RestService extends IntentService {
             applicationModel.setToken(token.token);
             EventBus.getDefault().post(token);
         } catch (RetrofitError error) {
-            Ln.d(error.getMessage());
-            EventBus.getDefault().post(new Token());
+            Ln.w(error.getMessage());
+            EventBus.getDefault().post((Token) null);
         }
     }
 
@@ -150,9 +157,11 @@ public class RestService extends IntentService {
         @POST("/get_token")
         Token getToken(@Field("email") String email, @Field("password") String password);
 
+        @FormUrlEncoded
         @POST("/get_outgoing_messages")
         List<Message> getOutgoingMessages(@Field("token") String token, @Field("email") String email);
 
+        @FormUrlEncoded
         @POST("/set_incoming_message")
         String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
     }

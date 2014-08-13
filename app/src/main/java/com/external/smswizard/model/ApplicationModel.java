@@ -14,6 +14,7 @@ public class ApplicationModel {
     private static final String TOKEN = "TOKEN";
     private static final String ILLEGAL_TOKEN = "";
     public static final String MODEL_NAME = "application_model";
+    private static final String EMAIL = "EMAIL";
 
     private final SharedPreferences.Editor editor;
     private final SharedPreferences sharedPreferences;
@@ -65,6 +66,20 @@ public class ApplicationModel {
     public void addMessage(String id, String phone) {
         Ln.d("id=%, phone=%s", id, phone);
         helper.addData(new Message(id, phone));
+    }
+
+    public void setEmail(String email) {
+        if (TextUtils.isEmpty(email)) {
+            throw new IllegalArgumentException();
+        }
+
+        Ln.d(email);
+
+        editor.putString(EMAIL, email).apply();
+    }
+
+    public String getEmail() {
+        return sharedPreferences.getString(EMAIL, null);
     }
 
     @DatabaseTable(tableName = "messages")
