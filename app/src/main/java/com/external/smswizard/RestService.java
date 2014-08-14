@@ -26,6 +26,9 @@ public class RestService extends IntentService {
     public static final String EXTRA_PASSWORD = "com.external.smswizard.EXTRA_PASSWORD";
     public static final String EXTRA_TOKEN = "com.external.smswizard.EXTRA_TOKEN";
     public static final String EXTRA_MESSAGE_ID = "com.external.smswizard.EXTRA_MESSAGE_ID";
+    public static final String EXTRA_MESSAGE_TEXT = "com.external.smswizard.EXTRA_MESSAGE_TEXT";
+
+
     public static final String EXTRA_WAKEFUL = "com.external.smswizard.EXTRA_WAKEFUL";
 
 
@@ -72,7 +75,7 @@ public class RestService extends IntentService {
 
         if (intent.getBooleanExtra(EXTRA_WAKEFUL, false)) {
             Ln.d("Completed service @ " + SystemClock.elapsedRealtime());
-            DeletionAlarmReceiver.completeWakefulIntent(intent);
+            DeletionReceiver.completeWakefulIntent(intent);
         }
     }
 
@@ -132,6 +135,16 @@ public class RestService extends IntentService {
         intent.setAction(RestService.ACTION_GET_OUTGOING_MESSAGES);
         intent.putExtra(RestService.EXTRA_TOKEN, token);
         intent.putExtra(RestService.EXTRA_EMAIL, email);
+        return intent;
+    }
+
+    public static Intent getIncomingMessageIntent(Context context, String token, String email, String messageId, String messageText) {
+        Intent intent = new Intent(context, RestService.class);
+        intent.setAction(RestService.ACTION_SET_INCOMING_MESSAGE);
+        intent.putExtra(RestService.EXTRA_TOKEN, token);
+        intent.putExtra(RestService.EXTRA_EMAIL, email);
+        intent.putExtra(RestService.EXTRA_MESSAGE_ID, messageId);
+        intent.putExtra(RestService.EXTRA_MESSAGE_TEXT, messageText);
         return intent;
     }
 

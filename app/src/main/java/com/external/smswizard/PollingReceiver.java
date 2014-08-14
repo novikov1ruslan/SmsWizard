@@ -10,7 +10,7 @@ import com.external.smswizard.model.ApplicationModel;
 
 import roboguice.util.Ln;
 
-public class PollingAlarmReceiver extends WakefulBroadcastReceiver {
+public class PollingReceiver extends WakefulBroadcastReceiver {
     private static final long DELAY = 10000; // TODO: increase
 
     @Override
@@ -37,7 +37,7 @@ public class PollingAlarmReceiver extends WakefulBroadcastReceiver {
     }
 
     private static PendingIntent getPendingIntent(Context context) {
-        Intent broadcast = new Intent(context, PollingAlarmReceiver.class);
+        Intent broadcast = new Intent(context, PollingReceiver.class);
         return PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 }

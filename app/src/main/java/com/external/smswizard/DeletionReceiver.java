@@ -1,20 +1,15 @@
 package com.external.smswizard;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.support.v4.util.TimeUtils;
 
 import com.external.smswizard.model.ApplicationModel;
 
-import java.util.concurrent.TimeUnit;
-
 import roboguice.util.Ln;
 
-public class DeletionAlarmReceiver extends WakefulBroadcastReceiver {
+public class DeletionReceiver extends WakefulBroadcastReceiver {
     private static final long DELAY = 20000; // TODO: increase
 
     private static final long SECOND = 1000;
@@ -43,7 +38,7 @@ public class DeletionAlarmReceiver extends WakefulBroadcastReceiver {
     }
 
     private static PendingIntent getPendingIntent(Context context) {
-        Intent broadcast = new Intent(context, DeletionAlarmReceiver.class);
+        Intent broadcast = new Intent(context, DeletionReceiver.class);
         return PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 }

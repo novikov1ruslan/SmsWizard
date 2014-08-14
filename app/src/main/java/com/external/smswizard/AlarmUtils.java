@@ -20,12 +20,12 @@ public class AlarmUtils {
     }
 
     public static void scheduleActivities(Context context) {
-        PollingAlarmReceiver.schedule(context);
-        DeletionAlarmReceiver.schedule(context);
+        PollingReceiver.schedule(context);
+        DeletionReceiver.schedule(context);
     }
 
     public static void cancelActivities(Context context) {
-        PollingAlarmReceiver.cancel(context);
-        DeletionAlarmReceiver.cancel(context);
+        PollingReceiver.cancel(context);
+        DeletionReceiver.cancel(context);
     }
 }

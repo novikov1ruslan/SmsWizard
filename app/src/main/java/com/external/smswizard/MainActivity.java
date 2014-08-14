@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.external.smswizard.view.MainLayout;
 import com.external.smswizard.model.ApplicationModel;
+import com.external.smswizard.view.MainLayout;
 
 import roboguice.util.Ln;
 
