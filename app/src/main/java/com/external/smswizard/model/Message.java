@@ -5,6 +5,11 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "messages")
 public class Message {
+    public static final String ID_NAME = "id";
+    public static final String NUMBER_NAME = "number";
+    public static final String TEXT_NAME = "text";
+    public static final String TIME_NAME = "time";
+
     @DatabaseField(id = true)
     public String id;
 
@@ -13,6 +18,9 @@ public class Message {
 
     @DatabaseField(canBeNull = true)
     public String text = "";
+
+    @DatabaseField(canBeNull = false)
+    public long time = System.currentTimeMillis();
 
     /**
      * this constructor is needed for DAO

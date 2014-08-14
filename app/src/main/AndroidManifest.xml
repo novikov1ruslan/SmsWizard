@@ -35,7 +35,12 @@
         </receiver>
 
         <receiver
-            android:name="com.external.smswizard.AlarmReceiver"
+            android:name=".DeletionAlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".PollingAlarmReceiver"
             android:enabled="true"
             android:exported="true" />
 

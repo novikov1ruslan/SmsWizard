@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.mapped.MappedPreparedStmt;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -70,7 +74,7 @@ public class ApplicationModel {
 
     public List<Message> getMessagesByNumber(String number) {
         try {
-            return helper.getDao().queryForEq("number", number);
+            return helper.getDao().queryForEq(Message.NUMBER_NAME, number);
         } catch (SQLException e) {
             Ln.w(e);
             return null;
@@ -100,4 +104,15 @@ public class ApplicationModel {
         return sharedPreferences.getString(EMAIL, null);
     }
 
+    public int deleteMessagesOlderThan(long epochTime) {
+        try {
+            Dao<Message, String> messageDao = helper.getDao();
+            DeleteBuilder<Message, String> deleteBuilder = messageDao.deleteBuilder();
+            deleteBuilder.where().lt(Message.TIME_NAME, epochTime);
+            return messageDao.delete(deleteBuilder.prepare());
+        } catch (SQLException e) {
+            Ln.w(e);
+            return 0;
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package com.external.smswizard;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +10,8 @@ import com.external.smswizard.model.ApplicationModel;
 
 import roboguice.util.Ln;
 
-public class AlarmReceiver extends WakefulBroadcastReceiver {
-    private static long DELAY = 10000; // TODO: increase
+public class PollingAlarmReceiver extends WakefulBroadcastReceiver {
+    private static final long DELAY = 10000; // TODO: increase
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -27,29 +26,18 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         startWakefulService(context, outgoingMessagesIntent);
     }
 
-    public static void schedulePolling(Context context) {
+    public static void schedule(Context context) {
         Ln.d("scheduling polling event every 10 seconds");
-        scheduleAlarm(context, getPendingIntent(context));
+        AlarmUtils.scheduleAlarm(context, getPendingIntent(context), DELAY);
     }
 
-    private static void scheduleAlarm(Context context, PendingIntent pendingIntent) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        // am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, AlarmManager.INTERVAL_HOUR, pendingIntent);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY, DELAY, pendingIntent);
-    }
-
-    public static void cancelPolling(Context context) {
-        cancelAlarm(context, getPendingIntent(context));
+    public static void cancel(Context context) {
+        AlarmUtils.cancelAlarm(context, getPendingIntent(context));
         Ln.d("polling cancelled");
     }
 
-    private static void cancelAlarm(Context context, PendingIntent pendingIntent) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        am.cancel(pendingIntent); // will cancel all alarms whose intent matches this one
-    }
-
     private static PendingIntent getPendingIntent(Context context) {
-        Intent broadcast = new Intent(context, AlarmReceiver.class);
+        Intent broadcast = new Intent(context, PollingAlarmReceiver.class);
         return PendingIntent.getBroadcast(context, 0, broadcast, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 }

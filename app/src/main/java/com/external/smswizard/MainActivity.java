@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
             @Override
             public void onLogout() {
                 Ln.d("processing logout request");
-                AlarmReceiver.cancelPolling(getBaseContext());
+                AlarmUtils.cancelActivities(getBaseContext());
                 model.forgetToken();
                 startActivity(new Intent(getBaseContext(), LoginActivity.class));
                 finish();

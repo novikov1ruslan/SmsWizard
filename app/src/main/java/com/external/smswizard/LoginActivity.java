@@ -86,7 +86,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
             Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
         } else {
             applicationModel.setApplicationOn();
-            AlarmReceiver.schedulePolling(this);
+            AlarmUtils.scheduleActivities(getBaseContext());
             startSmsWizard();
         }
     }

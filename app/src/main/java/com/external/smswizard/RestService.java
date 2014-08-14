@@ -14,7 +14,6 @@ import com.external.smswizard.model.Token;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import roboguice.util.Ln;
 
@@ -73,7 +72,7 @@ public class RestService extends IntentService {
 
         if (intent.getBooleanExtra(EXTRA_WAKEFUL, false)) {
             Ln.d("Completed service @ " + SystemClock.elapsedRealtime());
-            AlarmReceiver.completeWakefulIntent(intent);
+            DeletionAlarmReceiver.completeWakefulIntent(intent);
         }
     }
 
