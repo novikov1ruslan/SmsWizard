@@ -1,7 +1,9 @@
 package com.external.smswizard;
 
 import android.app.Application;
+import android.content.Context;
 
+import com.external.smswizard.model.ApplicationModel;
 import com.external.smswizard.model.Message;
 import com.external.smswizard.model.Token;
 
@@ -12,10 +14,13 @@ import retrofit.http.Field;
 
 public class SmsWizard extends Application {
 
+    private static SmsWizard instance;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        RestFactory.injectService(new SmsService() {
+        instance = this;
+        SmsRetrofit smsRetrofit = new SmsRetrofit() {
             @Override
             public Token getToken(@Field("email") String email, @Field("password") String password) {
                 return new Token("dummy_token_232434251");
@@ -31,9 +36,22 @@ public class SmsWizard extends Application {
             }
 
             @Override
-            public String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId) {
-                return null;
+            public void setIncomingMessage(@Field("token") String token, @Field("email") String email,
+                                           @Field("message_id") String messageId, @Field("text") String text) {
             }
-        });
+        };
+//        RestFactory.injectService(smsRetrofit);
+    }
+
+    public static void turnAppOff() {
+        ApplicationModel model = new ApplicationModel(instance);
+        model.setApplicationOff();
+        AlarmUtils.cancelActivities(instance);
+    }
+
+    public static void turnAppOn() {
+        ApplicationModel model = new ApplicationModel(instance);
+        model.setApplicationOn();
+        AlarmUtils.scheduleActivities(instance);
     }
 }

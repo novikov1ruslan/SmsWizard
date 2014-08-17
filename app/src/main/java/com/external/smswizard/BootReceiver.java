@@ -9,13 +9,12 @@ import com.external.smswizard.model.ApplicationModel;
 import roboguice.util.Ln;
 
 public class BootReceiver extends BroadcastReceiver {
-    private static final long DELAY = 10000;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        boolean hasToken = new ApplicationModel(context.getApplicationContext()).hasToken();
-        Ln.d("hasToken=" + hasToken);
-        if (hasToken) {
+        boolean isOn = new ApplicationModel(context.getApplicationContext()).isApplicationOn();
+        Ln.d("isOn=" + isOn);
+        if (isOn) {
             AlarmUtils.scheduleActivities(context);
         }
     }

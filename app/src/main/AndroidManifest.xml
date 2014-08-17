@@ -50,7 +50,7 @@
 
         <receiver
             android:name=".LegacySmsReceiver"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />

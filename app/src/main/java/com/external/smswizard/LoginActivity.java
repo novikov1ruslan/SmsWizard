@@ -34,7 +34,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
         applicationModel = new ApplicationModel(getApplicationContext());
         if (applicationModel.hasToken()) {
             Ln.d("token present, skipping login phase");
-            startSmsWizard();
+            switchToMainScreen();
             return;
         }
 
@@ -45,7 +45,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
         Ln.d("UI created");
     }
 
-    private void startSmsWizard() {
+    private void switchToMainScreen() {
         Ln.d("staring main app screen");
         startActivity(new Intent(getBaseContext(), MainActivity.class));
         finish();
@@ -82,12 +82,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>, 
     public void onEventMainThread(Token token) {
         layout.hideProgress();
         Ln.d("token=%s", token);
-        if (token.token == null) {
+        if (TextUtils.isEmpty(token.token)) {
             Crouton.makeText(LoginActivity.this, getString(R.string.login_failed), Style.ALERT).show();
         } else {
-            applicationModel.setApplicationOn();
-            AlarmUtils.scheduleActivities(getBaseContext());
-            startSmsWizard();
+            SmsWizard.turnAppOn();
+            switchToMainScreen();
         }
     }
 

@@ -32,7 +32,7 @@ public class RestService extends IntentService {
     public static final String EXTRA_WAKEFUL = "com.external.smswizard.EXTRA_WAKEFUL";
 
 
-    SmsService service = RestFactory.getService();
+    SmsRetrofit service = RestFactory.getService();
 
     public static void login(Context context, String email, String password) {
         Ln.d("starting login for (%s, %s)", email, password);
@@ -69,8 +69,10 @@ public class RestService extends IntentService {
             doGetOutgoingMessages(token, email);
         } else if (ACTION_SET_INCOMING_MESSAGE.equals(action)) {
             String token = intent.getStringExtra(EXTRA_TOKEN);
+            String email = intent.getStringExtra(EXTRA_EMAIL);
+            String messageText = intent.getStringExtra(EXTRA_MESSAGE_TEXT);
             String messageId = intent.getStringExtra(EXTRA_MESSAGE_ID);
-            doSetIncomingMessage(token, messageId);
+            doSetIncomingMessage(token, email, messageId, messageText);
         }
 
         if (intent.getBooleanExtra(EXTRA_WAKEFUL, false)) {
@@ -79,8 +81,8 @@ public class RestService extends IntentService {
         }
     }
 
-    private void doSetIncomingMessage(String token, String messageId) {
-        service.setIncomingMessage(token, messageId);
+    private void doSetIncomingMessage(String token, String email, String messageId, String text) {
+        service.setIncomingMessage(token, email, messageId, text);
     }
 
     private void doGetOutgoingMessages(String token, String email) {

@@ -9,7 +9,7 @@ import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
 
-public interface SmsService {
+public interface SmsRetrofit {
     @FormUrlEncoded
     @POST("/get_token")
     Token getToken(@Field("email") String email, @Field("password") String password);
@@ -20,5 +20,6 @@ public interface SmsService {
 
     @FormUrlEncoded
     @POST("/set_incoming_message")
-    String setIncomingMessage(@Field("token") String token, @Field("message_id") String messageId);
+    void setIncomingMessage(@Field("token") String token, @Field("email") String email,
+                              @Field("message_id") String messageId, @Field("text") String text);
 }

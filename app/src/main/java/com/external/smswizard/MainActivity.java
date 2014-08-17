@@ -1,6 +1,7 @@
 package com.external.smswizard;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -20,18 +21,18 @@ public class MainActivity extends Activity {
         layout.setLayoutListener(new MainLayout.LayoutListener() {
             @Override
             public void onApplicationOn() {
-                model.setApplicationOn();
+                SmsWizard.turnAppOn();
             }
 
             @Override
             public void onApplicationOff() {
-                model.setApplicationOff();
+                SmsWizard.turnAppOff();
             }
 
             @Override
             public void onLogout() {
                 Ln.d("processing logout request");
-                AlarmUtils.cancelActivities(getBaseContext());
+                SmsWizard.turnAppOff();
                 model.forgetToken();
                 startActivity(new Intent(getBaseContext(), LoginActivity.class));
                 finish();
