@@ -101,7 +101,7 @@ public class RestService extends IntentService {
         SmsManager smsManager = SmsManager.getDefault();
         for (Message message : messages) {
             Ln.d("sending SMS for: " + message);
-            smsManager.sendTextMessage(message.number, null, message.text, null, null);
+            smsManager.sendTextMessage(message.phone, null, message.text, null, null);
         }
     }
 
@@ -109,7 +109,7 @@ public class RestService extends IntentService {
         ApplicationModel applicationModel = new ApplicationModel(getApplicationContext());
         for (Message message : messages) {
             if (applicationModel.getMessageForId(message.id) == null) {
-                applicationModel.addMessage(message.id, message.number);
+                applicationModel.addMessage(message.id, message.phone);
             }
             else {
                 Ln.d("message id = %s already present", message.id);

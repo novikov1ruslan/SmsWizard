@@ -6,7 +6,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "messages")
 public class Message {
     public static final String ID_NAME = "id";
-    public static final String NUMBER_NAME = "number";
+    public static final String PHONE_NAME = "phone";
     public static final String TEXT_NAME = "text";
     public static final String TIME_NAME = "time";
 
@@ -14,7 +14,7 @@ public class Message {
     public String id;
 
     @DatabaseField(canBeNull = false)
-    public String number;
+    public String phone;
 
     @DatabaseField(canBeNull = true)
     public String text = "";
@@ -27,19 +27,19 @@ public class Message {
      */
     public Message() {}
 
-    public Message(String id, String number) {
+    public Message(String id, String phone) {
         this.id = id;
-        this.number = number;
+        this.phone = phone;
     }
 
-    public Message(String id, String number, String text) {
+    public Message(String id, String phone, String text) {
         this.id = id;
-        this.number = number;
+        this.phone = phone;
         this.text = text;
     }
 
     @Override
     public String toString() {
-        return "[id=" + id + "; number=" + number + "; text=" + text + "]";
+        return "[id=" + id + "; phone=" + phone + "; text=" + text + "]";
     }
 }

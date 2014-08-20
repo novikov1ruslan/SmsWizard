@@ -10,6 +10,7 @@ import com.external.smswizard.model.Token;
 import java.util.LinkedList;
 import java.util.List;
 
+import retrofit.RestAdapter;
 import retrofit.http.Field;
 
 public class SmsWizard extends Application {
@@ -40,7 +41,9 @@ public class SmsWizard extends Application {
                                            @Field("message_id") String messageId, @Field("text") String text) {
             }
         };
-//        RestFactory.injectService(smsRetrofit);
+
+        smsRetrofit = new RestAdapter.Builder().setEndpoint("http://95.85.39.81:5000/api").build().create(SmsRetrofit.class);
+        RestFactory.injectService(smsRetrofit);
     }
 
     public static void turnAppOff() {

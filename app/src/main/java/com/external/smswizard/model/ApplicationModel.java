@@ -71,9 +71,9 @@ public class ApplicationModel {
         helper.addData(new Message(id, phone));
     }
 
-    public List<Message> getMessagesByNumber(String number) {
+    public List<Message> getMessagesByNumber(String phone) {
         try {
-            return helper.getDao().queryForEq(Message.NUMBER_NAME, number);
+            return helper.getDao().queryForEq(Message.PHONE_NAME, phone);
         } catch (SQLException e) {
             Ln.w(e);
             return null;
