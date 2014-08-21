@@ -11,8 +11,8 @@ import roboguice.util.Ln;
 public class AlarmUtils {
 
     private AlarmUtils() {
+        // utility class
     }
-
 
     public static void scheduleAlarm(Context context, PendingIntent pendingIntent, long delay) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

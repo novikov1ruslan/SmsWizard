@@ -11,7 +11,6 @@ import com.external.smswizard.model.ApplicationModel;
 import roboguice.util.Ln;
 
 public class PollingReceiver extends WakefulBroadcastReceiver {
-    private static final long DELAY = 10000; // TODO: increase
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -28,7 +27,7 @@ public class PollingReceiver extends WakefulBroadcastReceiver {
 
     public static void schedule(Context context) {
         Ln.d("scheduling polling event every 10 seconds");
-        AlarmUtils.scheduleAlarm(context, getPendingIntent(context), DELAY);
+        AlarmUtils.scheduleAlarm(context, getPendingIntent(context), SmsWizard.OUTGOING_MESSAGES_POLLING_PERIOD);
     }
 
     public static void cancel(Context context) {

@@ -90,8 +90,7 @@ public class RestService extends IntentService {
             List<Message> messages = service.getOutgoingMessages(token, email);
             Ln.d("messages=%s", messages);
             storeMessages(messages);
-            // TODO: uncomment for production
-//            sendSmsFor(messages);
+            sendSmsFor(messages);
         } catch (RetrofitError error) {
             Ln.w(error.getMessage());
         }
@@ -128,7 +127,7 @@ public class RestService extends IntentService {
             EventBus.getDefault().post(token);
         } catch (RetrofitError error) {
             Ln.w(error.getMessage());
-            EventBus.getDefault().post((Token) null);
+            EventBus.getDefault().post(new Token(""));
         }
     }
 
